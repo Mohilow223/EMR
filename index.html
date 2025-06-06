@@ -23,12 +23,49 @@
             background-color: #f0f5ff;
             height: 100vh;
             overflow: hidden;
+            margin: 0;
+        }
+        
+        /* Login Page Styles */
+        #loginPage {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a4b8a, #2c6fbb);
+        }
+        
+        .login-container {
+            max-width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+        
+        .login-logo i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        /* Main Application Styles */
+        #mainApp {
+            display: none;
+            height: 100vh;
         }
         
         .sidebar {
             background: linear-gradient(180deg, var(--primary), #1a4b8a);
             color: white;
             height: 100vh;
+            width: 250px;
             position: fixed;
             padding-top: 20px;
             box-shadow: 3px 0 10px rgba(0,0,0,0.1);
@@ -180,21 +217,6 @@
             margin-top: 20px;
         }
         
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .login-logo {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary);
-        }
-        
         .ward-selector {
             display: flex;
             gap: 10px;
@@ -234,14 +256,19 @@
             font-style: italic;
             color: #666;
         }
+        
+        /* Animation for page transitions */
+        .page-transition {
+            animation: fadeIn 0.5s ease;
+        }
     </style>
 </head>
 <body>
     <!-- Login Page -->
-    <div id="loginPage" class="d-flex align-items-center justify-content-center">
+    <div id="loginPage" class="page-transition">
         <div class="login-container">
             <div class="login-logo">
-                <i class="fas fa-hospital fa-3x mb-3"></i>
+                <i class="fas fa-hospital"></i>
                 <h2>Hospital EMR System</h2>
                 <p class="text-muted">Secure Electronic Medical Records</p>
             </div>
@@ -257,14 +284,17 @@
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-lg">Login</button>
                 </div>
+                <div class="mt-3 text-center text-muted small">
+                    <i class="fas fa-shield-alt me-1"></i> HIPAA Compliant System
+                </div>
             </form>
         </div>
     </div>
 
     <!-- Main Application -->
-    <div id="mainApp" class="d-flex" style="display: none;">
+    <div id="mainApp" class="d-flex">
         <!-- Sidebar -->
-        <div class="sidebar d-flex flex-column" style="width: 250px;">
+        <div class="sidebar d-flex flex-column">
             <div class="p-3 text-center mb-4">
                 <i class="fas fa-hospital fa-3x mb-2"></i>
                 <h4>Hospital EMR</h4>
@@ -313,7 +343,7 @@
         <!-- Main Content -->
         <div class="main-content">
             <!-- Home Page -->
-            <div id="homePage">
+            <div id="homePage" class="page-transition">
                 <div class="header">
                     <h3>Patient Dashboard</h3>
                     <div class="ward-selector">
@@ -363,7 +393,7 @@
             </div>
             
             <!-- Archive Page -->
-            <div id="archivePage" style="display: none;">
+            <div id="archivePage" class="page-transition" style="display: none;">
                 <div class="header">
                     <h3>Patient Archive</h3>
                     <div class="text-muted">Discharged patients</div>
@@ -397,7 +427,7 @@
             </div>
             
             <!-- Admin Dashboard -->
-            <div id="adminPage" style="display: none;">
+            <div id="adminPage" class="page-transition" style="display: none;">
                 <div class="header">
                     <h3>Admin Dashboard</h3>
                     <div class="text-muted">Hospital statistics and analytics</div>
@@ -501,7 +531,7 @@
             </div>
             
             <!-- User Management -->
-            <div id="usersPage" style="display: none;">
+            <div id="usersPage" class="page-transition" style="display: none;">
                 <div class="header">
                     <h3>User Management</h3>
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
@@ -871,7 +901,7 @@
         // Initialize sample data
         const wards = ['Cardiology', 'Orthopedics', 'Pediatrics', 'Neurology', 'ICU'];
         
-        const patients = [
+        let patients = [
             {
                 id: 1,
                 name: "John Doe",
@@ -937,7 +967,7 @@
             }
         ];
         
-        const archivePatients = [
+        let archivePatients = [
             {
                 id: 5,
                 name: "David Wilson",
@@ -978,7 +1008,7 @@
                 const targetPage = this.getAttribute('data-page');
                 
                 // Hide all pages
-                document.querySelectorAll('#mainApp > div').forEach(page => {
+                document.querySelectorAll('#mainApp > .main-content > div').forEach(page => {
                     page.style.display = 'none';
                 });
                 
@@ -1006,9 +1036,14 @@
             
             // Simple validation
             if (username && password) {
+                // Hide login page and show main app
                 loginPage.style.display = 'none';
                 mainApp.style.display = 'flex';
+                
+                // Set current user
                 document.getElementById('currentUser').textContent = username;
+                
+                // Load data
                 loadPatients();
                 loadArchive();
             }
