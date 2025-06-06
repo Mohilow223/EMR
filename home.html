@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital EMR System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c6fbb;
+            --secondary: #3498db;
+            --accent: #1abc9c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f5ff;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary), #1a4b8a);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            padding-top: 20px;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            border-radius: 5px;
+            margin: 5px 10px;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            padding: 8px 20px;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1a4b8a;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            border: none;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            border: none;
+            color: #333;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            border: none;
+        }
+        
+        .badge-ward {
+            background-color: #e3f2fd;
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .patient-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .patient-table tr {
+            transition: background-color 0.2s;
+        }
+        
+        .patient-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .action-buttons .btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .tab-pane {
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .vital-check {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .medication-row {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+        
+        .ward-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .print-container {
+            padding: 30px;
+            background: white;
+        }
+        
+        .print-header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .print-title {
+            font-size: 24px;
+            color: var(--primary);
+            text-align: center;
+        }
+        
+        .print-patient {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .print-medications {
+            margin-top: 30px;
+        }
+        
+        .print-footer {
+            margin-top: 50px;
+            text-align: right;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="d-flex align-items-center justify-content-center">
+        <div class="login-container">
+            <div class="login-logo">
+                <i class="fas fa-hospital fa-3x mb-3"></i>
+                <h2>Hospital EMR System</h2>
+                <p class="text-muted">Secure Electronic Medical Records</p>
+            </div>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" placeholder="Enter your username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="d-flex" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar d-flex flex-column" style="width: 250px;">
+            <div class="p-3 text-center mb-4">
+                <i class="fas fa-hospital fa-3x mb-2"></i>
+                <h4>Hospital EMR</h4>
+                <p class="text-white-50 small">Electronic Medical Records</p>
+            </div>
+            
+            <ul class="nav flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="home">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="archive">
+                        <i class="fas fa-archive"></i> Patient Archive
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="admin">
+                        <i class="fas fa-chart-line"></i> Admin Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="users">
+                        <i class="fas fa-users-cog"></i> User Management
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="mt-auto p-3">
+                <div class="d-flex align-items-center text-white">
+                    <img src="https://ui-avatars.com/api/?name=Doctor+User&background=random" class="rounded-circle me-2" width="40" height="40">
+                    <div>
+                        <div id="currentUser">Dr. Smith</div>
+                        <small>Cardiologist</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button id="logoutBtn" class="btn btn-outline-light w-100">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Home Page -->
+            <div id="homePage">
+                <div class="header">
+                    <h3>Patient Dashboard</h3>
+                    <div class="ward-selector">
+                        <label class="me-2">Select Ward:</label>
+                        <select id="wardSelect" class="form-select" style="width: 200px;">
+                            <option value="cardiology">Cardiology</option>
+                            <option value="orthopedics">Orthopedics</option>
+                            <option value="pediatrics">Pediatrics</option>
+                            <option value="neurology">Neurology</option>
+                            <option value="icu">Intensive Care Unit</option>
+                        </select>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                            <i class="fas fa-plus me-2"></i>Add New Patient
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge-ward me-2" id="currentWardBadge">Cardiology</span>
+                            Active Patients
+                        </div>
+                        <div class="text-muted small" id="patientCount">Showing 8 patients</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover patient-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient Name</th>
+                                        <th>Room No</th>
+                                        <th>Treating Doctor</th>
+                                        <th>Speciality</th>
+                                        <th>Diagnosis</th>
+                                        <th>Notes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patientTableBody">
+                                    <!-- Patient data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Archive Page -->
+            <div id="archivePage" style="display: none;">
+                <div class="header">
+                    <h3>Patient Archive</h3>
+                    <div class="text-muted">Discharged patients</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        Discharged Patients
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient Name</th>
+                                        <th>Ward</th>
+                                        <th>Room No</th>
+                                        <th>Admission Date</th>
+                                        <th>Discharge Date</th>
+                                        <th>Discharged By</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="archiveTableBody">
+                                    <!-- Archive data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Dashboard -->
+            <div id="adminPage" style="display: none;">
+                <div class="header">
+                    <h3>Admin Dashboard</h3>
+                    <div class="text-muted">Hospital statistics and analytics</div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                Patient Admissions
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="admissionsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                Ward Distribution
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="wardChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Top Diagnoses
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Hypertension
+                                        <span class="badge bg-primary rounded-pill">42</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Diabetes Mellitus
+                                        <span class="badge bg-primary rounded-pill">38</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Pneumonia
+                                        <span class="badge bg-primary rounded-pill">32</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Fracture
+                                        <span class="badge bg-primary rounded-pill">28</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Myocardial Infarction
+                                        <span class="badge bg-primary rounded-pill">24</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Recent Activities
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Patient discharged</h6>
+                                            <small>10 minutes ago</small>
+                                        </div>
+                                        <p class="mb-1">John Doe discharged from Cardiology</p>
+                                        <small>By: Dr. Smith</small>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">New patient admitted</h6>
+                                            <small>1 hour ago</small>
+                                        </div>
+                                        <p class="mb-1">Jane Smith admitted to Pediatrics</p>
+                                        <small>By: Dr. Johnson</small>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Medication updated</h6>
+                                            <small>2 hours ago</small>
+                                        </div>
+                                        <p class="mb-1">Medications updated for Robert Brown</p>
+                                        <small>By: Dr. Williams</small>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Management -->
+            <div id="usersPage" style="display: none;">
+                <div class="header">
+                    <h3>User Management</h3>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-plus me-2"></i>Add New User
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        System Users
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Email</th>
+                                    <th>Last Login</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dr. Emily Smith</td>
+                                    <td>Doctor</td>
+                                    <td>emily.smith@hospital.com</td>
+                                    <td>Today, 09:24 AM</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Dr. Michael Johnson</td>
+                                    <td>Doctor</td>
+                                    <td>m.johnson@hospital.com</td>
+                                    <td>Yesterday, 04:15 PM</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Nurse Sarah Williams</td>
+                                    <td>Nurse</td>
+                                    <td>s.williams@hospital.com</td>
+                                    <td>Today, 10:30 AM</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Admin James Brown</td>
+                                    <td>Administrator</td>
+                                    <td>j.brown@hospital.com</td>
+                                    <td>Today, 08:45 AM</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <!-- Add Patient Modal -->
+    <div class="modal fade" id="addPatientModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Patient</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="patientForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Age</label>
+                                <input type="number" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Room No</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Treating Doctor</label>
+                                <input type="text" class="form-control" list="doctorList" required>
+                                <datalist id="doctorList">
+                                    <option value="Dr. Emily Smith">
+                                    <option value="Dr. Michael Johnson">
+                                    <option value="Dr. Sarah Williams">
+                                    <option value="Dr. Robert Brown">
+                                    <option value="Dr. Jennifer Davis">
+                                </datalist>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Speciality</label>
+                                <select class="form-select" required>
+                                    <option value="">Select speciality</option>
+                                    <option value="Cardiology">Cardiology</option>
+                                    <option value="Orthopedics">Orthopedics</option>
+                                    <option value="Pediatrics">Pediatrics</option>
+                                    <option value="Neurology">Neurology</option>
+                                    <option value="Oncology">Oncology</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Chief Complaint</label>
+                            <textarea class="form-control" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Past Medical History</label>
+                            <select class="form-select" multiple>
+                                <option value="Hypertension">Hypertension</option>
+                                <option value="Diabetes">Diabetes</option>
+                                <option value="Asthma">Asthma</option>
+                                <option value="Heart Disease">Heart Disease</option>
+                                <option value="Kidney Disease">Kidney Disease</option>
+                                <option value="Cancer">Cancer</option>
+                            </select>
+                            <div class="form-text">Hold Ctrl/Cmd to select multiple</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Past Surgical History</label>
+                            <textarea class="form-control" rows="2" placeholder="List previous surgeries"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Diagnosis</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Medications</label>
+                            <div class="medication-list">
+                                <div class="medication-row d-flex gap-2 mb-2">
+                                    <div style="flex: 3;">
+                                        <input type="text" class="form-control" placeholder="Medication name" list="medList">
+                                        <datalist id="medList">
+                                            <option value="Paracetamol">
+                                            <option value="Ibuprofen">
+                                            <option value="Amoxicillin">
+                                            <option value="Lisinopril">
+                                            <option value="Metformin">
+                                            <option value="Atorvastatin">
+                                        </datalist>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <input type="text" class="form-control" placeholder="Dosage">
+                                    </div>
+                                    <div style="flex: 2;">
+                                        <input type="text" class="form-control" placeholder="Frequency">
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="fas fa-plus me-1"></i>Add Medication
+                            </button>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Investigations</label>
+                            <textarea class="form-control" rows="3" placeholder="Tests, imaging, etc."></textarea>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-upload me-1"></i>Upload Image
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" rows="3" placeholder="Additional notes"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Vitals</label>
+                            <div class="vitals-grid">
+                                <div class="vital-check form-check">
+                                    <input class="form-check-input" type="checkbox" id="vital1">
+                                    <label class="form-check-label" for="vital1">Blood Pressure</label>
+                                </div>
+                                <div class="vital-check form-check">
+                                    <input class="form-check-input" type="checkbox" id="vital2">
+                                    <label class="form-check-label" for="vital2">Heart Rate</label>
+                                </div>
+                                <div class="vital-check form-check">
+                                    <input class="form-check-input" type="checkbox" id="vital3">
+                                    <label class="form-check-label" for="vital3">Temperature</label>
+                                </div>
+                                <div class="vital-check form-check">
+                                    <input class="form-check-input" type="checkbox" id="vital4">
+                                    <label class="form-check-label" for="vital4">Respiratory Rate</label>
+                                </div>
+                                <div class="vital-check form-check">
+                                    <input class="form-check-input" type="checkbox" id="vital5">
+                                    <label class="form-check-label" for="vital5">O2 Saturation</label>
+                                </div>
+                                <div class="vital-check form-check">
+                                    <input class="form-check-input" type="checkbox" id="vital6">
+                                    <label class="form-check-label" for="vital6">Blood Glucose</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Save Patient</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Medications Modal -->
+    <div class="modal fade" id="medicationsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Patient Medications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 id="medPatientName">John Doe</h6>
+                    <div class="mt-3">
+                        <div class="medication-list">
+                            <div class="medication-row d-flex gap-2 mb-2">
+                                <div style="flex: 3;">
+                                    <input type="text" class="form-control" value="Paracetamol" list="medList">
+                                </div>
+                                <div style="flex: 1;">
+                                    <input type="text" class="form-control" value="500mg">
+                                </div>
+                                <div style="flex: 2;">
+                                    <input type="text" class="form-control" value="QID">
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="medication-row d-flex gap-2 mb-2">
+                                <div style="flex: 3;">
+                                    <input type="text" class="form-control" value="Amoxicillin" list="medList">
+                                </div>
+                                <div style="flex: 1;">
+                                    <input type="text" class="form-control" value="500mg">
+                                </div>
+                                <div style="flex: 2;">
+                                    <input type="text" class="form-control" value="TID">
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2">
+                            <i class="fas fa-plus me-1"></i>Add Medication
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-success" id="printMedsBtn">Print</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Print Medications Modal -->
+    <div class="modal fade" id="printModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Print Medications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body print-container">
+                    <div class="print-header">
+                        <div class="print-title">Hospital EMR System</div>
+                        <div class="text-center">Medication List</div>
+                    </div>
+                    
+                    <div class="print-patient">
+                        <strong>Patient:</strong> John Doe<br>
+                        <strong>Room No:</strong> 305B<br>
+                        <strong>Date:</strong> <span id="printDate"></span>
+                    </div>
+                    
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Paracetamol</td>
+                                <td>500mg</td>
+                                <td>QID (4 times daily)</td>
+                            </tr>
+                            <tr>
+                                <td>Amoxicillin</td>
+                                <td>500mg</td>
+                                <td>TID (3 times daily)</td>
+                            </tr>
+                            <tr>
+                                <td>Lisinopril</td>
+                                <td>10mg</td>
+                                <td>Once daily</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="print-footer">
+                        <div>Prescribed by: Dr. Emily Smith</div>
+                        <div>Signature: _________________________</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize sample data
+        const wards = ['Cardiology', 'Orthopedics', 'Pediatrics', 'Neurology', 'ICU'];
+        
+        const patients = [
+            {
+                id: 1,
+                name: "John Doe",
+                age: 65,
+                roomNo: "305B",
+                doctor: "Dr. Emily Smith",
+                speciality: "Cardiology",
+                diagnosis: "Hypertension, CHF",
+                notes: "Stable condition, monitor BP",
+                ward: "Cardiology",
+                admitted: "2023-10-15",
+                medications: [
+                    { name: "Lisinopril", dosage: "10mg", frequency: "Once daily" },
+                    { name: "Furosemide", dosage: "40mg", frequency: "Once daily" }
+                ]
+            },
+            {
+                id: 2,
+                name: "Jane Smith",
+                age: 42,
+                roomNo: "208A",
+                doctor: "Dr. Michael Johnson",
+                speciality: "Orthopedics",
+                diagnosis: "Fractured femur",
+                notes: "Post-op day 3, PT started",
+                ward: "Orthopedics",
+                admitted: "2023-10-20",
+                medications: [
+                    { name: "Paracetamol", dosage: "500mg", frequency: "QID" },
+                    { name: "Ibuprofen", dosage: "400mg", frequency: "TID" }
+                ]
+            },
+            {
+                id: 3,
+                name: "Robert Johnson",
+                age: 8,
+                roomNo: "105C",
+                doctor: "Dr. Sarah Williams",
+                speciality: "Pediatrics",
+                diagnosis: "Pneumonia",
+                notes: "Antibiotics started, improving",
+                ward: "Pediatrics",
+                admitted: "2023-10-22",
+                medications: [
+                    { name: "Amoxicillin", dosage: "250mg", frequency: "TID" }
+                ]
+            },
+            {
+                id: 4,
+                name: "Mary Brown",
+                age: 72,
+                roomNo: "401D",
+                doctor: "Dr. Robert Brown",
+                speciality: "Neurology",
+                diagnosis: "CVA, Left hemiparesis",
+                notes: "Speech therapy evaluation needed",
+                ward: "Neurology",
+                admitted: "2023-10-18",
+                medications: [
+                    { name: "Atorvastatin", dosage: "40mg", frequency: "Once daily" },
+                    { name: "Aspirin", dosage: "81mg", frequency: "Once daily" }
+                ]
+            }
+        ];
+        
+        const archivePatients = [
+            {
+                id: 5,
+                name: "David Wilson",
+                ward: "Cardiology",
+                roomNo: "302A",
+                admitted: "2023-10-10",
+                discharged: "2023-10-17",
+                dischargedBy: "Dr. Emily Smith"
+            },
+            {
+                id: 6,
+                name: "Lisa Taylor",
+                ward: "Orthopedics",
+                roomNo: "210B",
+                admitted: "2023-10-12",
+                discharged: "2023-10-19",
+                dischargedBy: "Dr. Michael Johnson"
+            }
+        ];
+        
+        // DOM Elements
+        const loginPage = document.getElementById('loginPage');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const wardSelect = document.getElementById('wardSelect');
+        const patientTableBody = document.getElementById('patientTableBody');
+        const archiveTableBody = document.getElementById('archiveTableBody');
+        const currentWardBadge = document.getElementById('currentWardBadge');
+        const patientCount = document.getElementById('patientCount');
+        const medPatientName = document.getElementById('medPatientName');
+        const printMedsBtn = document.getElementById('printMedsBtn');
+        const printDate = document.getElementById('printDate');
+        
+        // Page navigation
+        document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+            link.addEventListener('click', function() {
+                const targetPage = this.getAttribute('data-page');
+                
+                // Hide all pages
+                document.querySelectorAll('#mainApp > div').forEach(page => {
+                    page.style.display = 'none';
+                });
+                
+                // Show target page
+                document.getElementById(`${targetPage}Page`).style.display = 'block';
+                
+                // Update active nav link
+                document.querySelectorAll('.nav-link').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Initialize charts on admin page
+                if (targetPage === 'admin') {
+                    initCharts();
+                }
+            });
+        });
+        
+        // Login functionality
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation
+            if (username && password) {
+                loginPage.style.display = 'none';
+                mainApp.style.display = 'flex';
+                document.getElementById('currentUser').textContent = username;
+                loadPatients();
+                loadArchive();
+            }
+        });
+        
+        // Logout functionality
+        logoutBtn.addEventListener('click', function() {
+            mainApp.style.display = 'none';
+            loginPage.style.display = 'flex';
+            loginForm.reset();
+        });
+        
+        // Ward selection
+        wardSelect.addEventListener('change', function() {
+            currentWardBadge.textContent = this.options[this.selectedIndex].text;
+            loadPatients();
+        });
+        
+        // Load patients for selected ward
+        function loadPatients() {
+            const selectedWard = wardSelect.value;
+            const wardPatients = patients.filter(p => p.ward.toLowerCase() === selectedWard);
+            
+            patientTableBody.innerHTML = '';
+            
+            wardPatients.forEach(patient => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${patient.name} <span class="text-muted small">(${patient.age}y)</span></td>
+                    <td>${patient.roomNo}</td>
+                    <td>${patient.doctor}</td>
+                    <td>${patient.speciality}</td>
+                    <td>${patient.diagnosis}</td>
+                    <td>${patient.notes}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-sm btn-danger discharge-btn" data-id="${patient.id}">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary print-btn" data-id="${patient.id}">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning meds-btn" data-id="${patient.id}" data-name="${patient.name}">
+                            <i class="fas fa-pills"></i>
+                        </button>
+                    </td>
+                `;
+                patientTableBody.appendChild(row);
+            });
+            
+            patientCount.textContent = `Showing ${wardPatients.length} patients`;
+            
+            // Add event listeners to buttons
+            document.querySelectorAll('.discharge-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const patientId = parseInt(this.getAttribute('data-id'));
+                    dischargePatient(patientId);
+                });
+            });
+            
+            document.querySelectorAll('.print-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const patientId = parseInt(this.getAttribute('data-id'));
+                    openPrintModal(patientId);
+                });
+            });
+            
+            document.querySelectorAll('.meds-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const patientId = parseInt(this.getAttribute('data-id'));
+                    const patientName = this.getAttribute('data-name');
+                    openMedsModal(patientId, patientName);
+                });
+            });
+        }
+        
+        // Load archive patients
+        function loadArchive() {
+            archiveTableBody.innerHTML = '';
+            
+            archivePatients.forEach(patient => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${patient.name}</td>
+                    <td>${patient.ward}</td>
+                    <td>${patient.roomNo}</td>
+                    <td>${patient.admitted}</td>
+                    <td>${patient.discharged}</td>
+                    <td>${patient.dischargedBy}</td>
+                    <td>
+                        <button class="btn btn-sm btn-success restore-btn" data-id="${patient.id}">
+                            <i class="fas fa-undo me-1"></i>Restore
+                        </button>
+                    </td>
+                `;
+                archiveTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to restore buttons
+            document.querySelectorAll('.restore-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const patientId = parseInt(this.getAttribute('data-id'));
+                    restorePatient(patientId);
+                });
+            });
+        }
+        
+        // Discharge patient
+        function dischargePatient(id) {
+            const patient = patients.find(p => p.id === id);
+            if (patient) {
+                // Add to archive
+                archivePatients.push({
+                    id: patient.id,
+                    name: patient.name,
+                    ward: patient.ward,
+                    roomNo: patient.roomNo,
+                    admitted: patient.admitted,
+                    discharged: new Date().toISOString().split('T')[0],
+                    dischargedBy: document.getElementById('currentUser').textContent
+                });
+                
+                // Remove from active patients
+                const index = patients.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    patients.splice(index, 1);
+                }
+                
+                // Reload data
+                loadPatients();
+                loadArchive();
+                
+                alert(`Patient ${patient.name} has been discharged and moved to archive.`);
+            }
+        }
+        
+        // Restore patient
+        function restorePatient(id) {
+            const patient = archivePatients.find(p => p.id === id);
+            if (patient) {
+                // Find original patient data
+                const original = patients.find(p => p.id === id) || {
+                    id: patient.id,
+                    name: patient.name,
+                    age: 0,
+                    roomNo: patient.roomNo,
+                    doctor: "",
+                    speciality: "",
+                    diagnosis: "",
+                    notes: "",
+                    ward: patient.ward,
+                    admitted: patient.admitted,
+                    medications: []
+                };
+                
+                // Add back to active patients
+                patients.push(original);
+                
+                // Remove from archive
+                const index = archivePatients.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    archivePatients.splice(index, 1);
+                }
+                
+                // Reload data
+                loadPatients();
+                loadArchive();
+                
+                alert(`Patient ${patient.name} has been restored.`);
+            }
+        }
+        
+        // Open medications modal
+        function openMedsModal(id, name) {
+            medPatientName.textContent = name;
+            const medicationsModal = new bootstrap.Modal(document.getElementById('medicationsModal'));
+            medicationsModal.show();
+        }
+        
+        // Open print modal
+        function openPrintModal(id) {
+            const patient = patients.find(p => p.id === id);
+            if (patient) {
+                const today = new Date();
+                printDate.textContent = today.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                const printModal = new bootstrap.Modal(document.getElementById('printModal'));
+                printModal.show();
+            }
+        }
+        
+        // Initialize charts
+        function initCharts() {
+            // Admissions Chart
+            const admissionsCtx = document.getElementById('admissionsChart').getContext('2d');
+            new Chart(admissionsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Oct 15', 'Oct 16', 'Oct 17', 'Oct 18', 'Oct 19', 'Oct 20', 'Oct 21', 'Oct 22'],
+                    datasets: [{
+                        label: 'Patient Admissions',
+                        data: [12, 19, 15, 17, 14, 16, 18, 22],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Patients'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Ward Distribution Chart
+            const wardCtx = document.getElementById('wardChart').getContext('2d');
+            new Chart(wardCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: wards,
+                    datasets: [{
+                        data: [25, 18, 15, 12, 10],
+                        backgroundColor: [
+                            '#3498db',
+                            '#2ecc71',
+                            '#9b59b6',
+                            '#e74c3c',
+                            '#f39c12'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Print medications button
+        printMedsBtn.addEventListener('click', function() {
+            const medicationsModal = bootstrap.Modal.getInstance(document.getElementById('medicationsModal'));
+            medicationsModal.hide();
+            
+            setTimeout(() => {
+                const printModal = new bootstrap.Modal(document.getElementById('printModal'));
+                printModal.show();
+            }, 500);
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listener for adding new medication
+            document.querySelectorAll('.btn-outline-primary').forEach(btn => {
+                if (btn.textContent.includes('Add Medication')) {
+                    btn.addEventListener('click', function() {
+                        const medicationList = this.previousElementSibling;
+                        const newRow = document.createElement('div');
+                        newRow.className = 'medication-row d-flex gap-2 mb-2';
+                        newRow.innerHTML = `
+                            <div style="flex: 3;">
+                                <input type="text" class="form-control" placeholder="Medication name" list="medList">
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="text" class="form-control" placeholder="Dosage">
+                            </div>
+                            <div style="flex: 2;">
+                                <input type="text" class="form-control" placeholder="Frequency">
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `;
+                        medicationList.appendChild(newRow);
+                        
+                        // Add event to remove button
+                        newRow.querySelector('.btn-outline-danger').addEventListener('click', function() {
+                            newRow.remove();
+                        });
+                    });
+                }
+            });
+            
+            // Add event to existing remove buttons
+            document.querySelectorAll('.btn-outline-danger').forEach(btn => {
+                if (btn.innerHTML.includes('fa-times')) {
+                    btn.addEventListener('click', function() {
+                        this.closest('.medication-row').remove();
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
